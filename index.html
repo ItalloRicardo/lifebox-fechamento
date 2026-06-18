@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Lifebox Savassi — Fechamento de Turno</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --brand: #D85A30;
+    --bg:  #ffffff;
+    --bg2: #f5f5f4;
+    --bg3: #efefed;
+    --text:  #1a1a18;
+    --text2: #6b6b67;
+    --text3: #a0a09c;
+    --border:  rgba(0,0,0,0.12);
+    --border2: rgba(0,0,0,0.22);
+    --ok-bg:   #eaf3de; --ok-bd: #7ab84a; --ok-tx: #3b6d11;
+    --no-bg:   #fcebeb; --no-bd: #e24b4a; --no-tx: #a32d2d;
+    --wn-bg:   #faeeda; --wn-bd: #ef9f27; --wn-tx: #854f0b;
+    --r: 10px; --rs: 7px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:  #1c1c1a; --bg2: #252523; --bg3: #2e2e2b;
+      --text: #f0efea; --text2: #9a9994; --text3: #686865;
+      --border: rgba(255,255,255,0.1); --border2: rgba(255,255,255,0.2);
+      --ok-bg: #17340a; --ok-bd: #3b6d11; --ok-tx: #c0dd97;
+      --no-bg: #501313; --no-bd: #a32d2d; --no-tx: #f09595;
+      --wn-bg: #412402; --wn-bd: #854f0b; --wn-tx: #fac775;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg3); color: var(--text); min-height: 100vh; }
+  .wrap { max-width: 480px; margin: 0 auto; padding-bottom: 3rem; background: var(--bg3); min-height: 100vh; }
+
+  /* Header */
+  .hdr { background: var(--bg); border-bottom: 0.5px solid var(--border); padding: 1.1rem 1.25rem 1rem; position: sticky; top: 0; z-index: 10; }
+  .brand { font-size: 11px; font-weight: 600; letter-spacing: .08em; color: var(--brand); text-transform: uppercase; }
+  .hdr h1 { font-size: 18px; font-weight: 600; color: var(--text); margin-top: 3px; }
+
+  /* Config banner */
+  .cfg-banner { background: var(--wn-bg); border: 0.5px solid var(--wn-bd); border-radius: var(--r); padding: 12px 14px; margin: 1rem 1.25rem 0; font-size: 13px; color: var(--wn-tx); line-height: 1.5; }
+  .cfg-banner strong { font-weight: 600; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; padding: 1rem 1.25rem 0; }
+  .tab { flex: 1; padding: 10px 0; border: none; background: var(--bg2); cursor: pointer; font-size: 14px; font-weight: 500; color: var(--text2); border-radius: var(--rs); border: 0.5px solid var(--border); }
+  .tab.on { background: var(--bg); color: var(--text); border-color: var(--border2); }
+
+  /* Section */
+  .sec { padding: 1rem 1.25rem 0; }
+
+  /* Banner */
+  .banner { border-radius: var(--r); padding: 13px 14px; display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; border: 0.5px solid; }
+  .banner.danger { background: var(--no-bg); border-color: var(--no-bd); }
+  .banner.success { background: var(--ok-bg); border-color: var(--ok-bd); }
+  .b-icon { font-size: 22px; flex-shrink: 0; line-height: 1; }
+  .b-title { font-size: 14px; font-weight: 600; }
+  .b-sub { font-size: 12px; opacity: .8; margin-top: 1px; }
+  .banner.danger .b-title, .banner.danger .b-sub { color: var(--no-tx); }
+  .banner.success .b-title, .banner.success .b-sub { color: var(--ok-tx); }
+
+  /* Checklist items */
+  .ck { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r); padding: 13px; display: flex; align-items: flex-start; gap: 12px; cursor: pointer; margin-bottom: 7px; -webkit-tap-highlight-color: transparent; }
+  .ck:active { opacity: .8; }
+  .ck.ok { background: var(--ok-bg); border-color: var(--ok-bd); }
+  .circ { width: 23px; height: 23px; border-radius: 50%; border: 1.5px solid var(--border2); flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; font-size: 13px; }
+  .ck.ok .circ { border-color: var(--ok-bd); color: var(--ok-tx); }
+  .ck-t { font-size: 15px; font-weight: 500; line-height: 1.3; }
+  .ck.ok .ck-t { color: var(--ok-tx); }
+  .ck-n { font-size: 12px; color: var(--text2); margin-top: 3px; line-height: 1.5; }
+  .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: var(--rs); }
+  .td { background: var(--no-bg); color: var(--no-tx); }
+  .tw { background: var(--wn-bg); color: var(--wn-tx); }
+
+  /* Input */
+  .lbl { font-size: 13px; color: var(--text2); display: block; margin-bottom: 6px; }
+  .inp { width: 100%; padding: 12px 13px; font-size: 15px; background: var(--bg); border: 0.5px solid var(--border2); border-radius: var(--r); color: var(--text); outline: none; -webkit-appearance: none; }
+  .inp:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(216,90,48,.15); }
+
+  /* Buttons */
+  .btn-p { width: 100%; padding: 14px; border-radius: var(--r); border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 1rem; background: var(--brand); color: #fff; -webkit-tap-highlight-color: transparent; }
+  .btn-p:active { opacity: .85; }
+  .btn-p:disabled { background: var(--bg3); color: var(--text3); cursor: not-allowed; border: 0.5px solid var(--border); }
+  .btn-s { width: 100%; padding: 11px; border-radius: var(--r); border: 0.5px solid var(--border); font-size: 14px; font-weight: 500; cursor: pointer; margin-top: 8px; background: var(--bg); color: var(--text2); -webkit-tap-highlight-color: transparent; }
+  .btn-s:active { opacity: .75; }
+
+  /* History */
+  .lc { background: var(--bg); border: 0.5px solid var(--border); border-radius: var(--r); padding: 13px 14px; margin-bottom: 8px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .lc:active { opacity: .85; }
+  .l-hd { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .l-date { font-size: 15px; font-weight: 600; color: var(--text); }
+  .l-time { font-size: 17px; font-weight: 700; color: var(--brand); }
+  .l-who { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .bdg { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: var(--rs); white-space: nowrap; }
+  .bdg-ok { background: var(--ok-bg); color: var(--ok-tx); }
+  .bdg-no { background: var(--no-bg); color: var(--no-tx); }
+  .log-items { margin-top: 11px; border-top: 0.5px solid var(--border); padding-top: 11px; display: flex; flex-direction: column; gap: 6px; }
+  .li { display: flex; align-items: center; gap: 9px; font-size: 13px; }
+  .li.ok { color: var(--ok-tx); } .li.no { color: var(--text2); }
+  .chv { font-size: 12px; color: var(--text3); transition: transform .2s; }
+  .chv.open { transform: rotate(180deg); }
+
+  /* States */
+  .empty { text-align: center; padding: 3.5rem 1rem; color: var(--text3); }
+  .empty p { font-size: 14px; margin-top: 10px; }
+  .loading { text-align: center; padding: 3rem 0; color: var(--text3); font-size: 14px; }
+  .err-msg { font-size: 13px; color: var(--no-tx); padding: .75rem 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hdr">
+    <div class="brand">Lifebox Savassi</div>
+    <h1>Fechamento de turno</h1>
+  </div>
+
+  <div id="cfg-banner" class="cfg-banner" style="display:none">
+    <strong>Configuração pendente.</strong> Abra o arquivo <code>index.html</code> e substitua <code>https://lifebox-8e7fa-default-rtdb.firebaseio.com/</code> pela URL do seu projeto Firebase. Veja o <code>LEIA-ME.md</code> para instruções.
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" id="tc" onclick="stab('c')">✓ Conferência</button>
+    <button class="tab" id="th" onclick="stab('h')">↺ Histórico</button>
+  </div>
+
+  <!-- Conferência -->
+  <div id="vc" class="sec">
+    <div style="height:1rem"></div>
+    <div id="bn" class="banner danger">
+      <div class="b-icon" style="color:var(--no-tx)">✗</div>
+      <div>
+        <div class="b-title">Não liberar a equipe</div>
+        <div class="b-sub">0 de 7 itens conferidos</div>
+      </div>
+    </div>
+    <div id="cl"></div>
+    <div style="margin-top:1rem">
+      <label class="lbl" for="ni">Responsável pela conferência</label>
+      <input class="inp" id="ni" type="text" placeholder="Nome do gerente ou chefe" autocomplete="off" oninput="ub()">
+    </div>
+    <button class="btn-p" id="rb" onclick="reg()" disabled>Registrar fechamento</button>
+    <button class="btn-s" onclick="rst()">↺ Reiniciar conferência</button>
+    <div style="height:.5rem"></div>
+  </div>
+
+  <!-- Histórico -->
+  <div id="vh" style="display:none" class="sec">
+    <div style="height:1rem"></div>
+    <div id="hl"></div>
+    <div id="he" class="empty" style="display:none">
+      <div style="font-size:36px;opacity:.3">📋</div>
+      <p>Nenhum registro ainda</p>
+    </div>
+    <div id="hld" class="loading" style="display:none">Carregando registros...</div>
+  </div>
+
+</div>
+<script>
+/* ============================================================
+   CONFIGURAÇÃO — cole a URL do seu Firebase Realtime Database
+   Exemplo: https://lifebox-savassi-default-rtdb.firebaseio.com
+============================================================ */
+var FIREBASE_URL = https://lifebox-8e7fa-default-rtdb.firebaseio.com/;
+/* ============================================================ */
+
+var IT = [
+  { t: "Limpeza bem feita",                         n: "Chão e equipamentos lavados com água e detergente alcalino, não só passar pano",         tg: [] },
+  { t: "Lavar coifa e colocar filtros no tanque",   n: "Lavar coifa com água e desencrustante, colocar filtros de molho no tanque",              tg: [{ l: "⚠ Risco de incêndio", c: "d" }, { l: "⚠ Risco de multa", c: "w" }] },
+  { t: "Todos os equipamentos desligados",           n: "Fogão, chapas, fritadeiras e charbroiler",                                              tg: [{ l: "⚠ Risco de incêndio", c: "d" }] },
+  { t: "Exaustão desligada",                         n: "",                                                                                      tg: [] },
+  { t: "Geladeira de apoio e balcões refrigerados", n: "Conferir limpeza, organização, armazenamento e etiquetas",                               tg: [] },
+  { t: "Armazenamento dos pães",                    n: "Folhas que armazenam os pães devem estar secas, embalagens fechadas",                    tg: [] },
+  { t: "Desperdício do turno lançado no Vuca",      n: "Compras > Estoque > Desperdícios — filtrar dia/hora, tipo de desperdício: RETAGUARDA",   tg: [] }
+];
+
+var st = IT.map(function() { return false; });
+var xp = {};
+var configured = FIREBASE_URL !== https://lifebox-8e7fa-default-rtdb.firebaseio.com/;
+
+/* ---------- Firebase ---------- */
+async function dbGet() {
+  var res = await fetch(FIREBASE_URL + '/logs.json');
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  var data = await res.json();
+  if (!data) return [];
+  return Object.values(data).sort(function(a, b) { return b.ts - a.ts; });
+}
+
+async function dbSave(rec) {
+  var res = await fetch(FIREBASE_URL + '/logs.json', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(rec)
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+}
+
+/* ---------- Render checklist ---------- */
+function cr() {
+  var cnt = st.filter(Boolean).length, all = cnt === IT.length;
+  var bn = document.getElementById('bn');
+  if (all) {
+    bn.className = 'banner success';
+    bn.innerHTML = '<div class="b-icon" style="color:var(--ok-tx)">✓</div><div><div class="b-title">Equipe pode ser liberada</div><div class="b-sub">Todos os 7 itens conferidos</div></div>';
+  } else {
+    bn.className = 'banner danger';
+    bn.innerHTML = '<div class="b-icon" style="color:var(--no-tx)">✗</div><div><div class="b-title">Não liberar a equipe</div><div class="b-sub">' + cnt + ' de 7 itens conferidos</div></div>';
+  }
+  document.getElementById('cl').innerHTML = IT.map(function(it, i) {
+    var d = st[i];
+    var tgs = it.tg.length ? '<div class="tags">' + it.tg.map(function(g) {
+      return '<span class="tag t' + g.c + '">' + g.l + '</span>';
+    }).join('') + '</div>' : '';
+    return '<div class="ck' + (d ? ' ok' : '') + '" onclick="tog(' + i + ')">'
+      + '<div class="circ">' + (d ? '✓' : '') + '</div>'
+      + '<div style="flex:1;min-width:0">'
+      + '<div class="ck-t">' + it.t + '</div>'
+      + (it.n ? '<div class="ck-n">' + it.n + '</div>' : '')
+      + tgs + '</div></div>';
+  }).join('');
+  ub();
+}
+
+function tog(i) { st[i] = !st[i]; cr(); }
+
+function ub() {
+  var nm = (document.getElementById('ni').value || '').trim();
+  document.getElementById('rb').disabled = !nm.length;
+}
+
+/* ---------- Register ---------- */
+async function reg() {
+  var nm = (document.getElementById('ni').value || '').trim();
+  if (!nm) return;
+  var btn = document.getElementById('rb');
+  btn.textContent = 'Salvando...'; btn.disabled = true;
+  var cnt = st.filter(Boolean).length, now = new Date();
+  var rec = {
+    ts:          now.getTime(),
+    date:        now.toLocaleDateString('pt-BR'),
+    time:        now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+    responsible: nm,
+    checked:     cnt,
+    total:       IT.length,
+    allDone:     cnt === IT.length,
+    items:       IT.map(function(it, i) { return { title: it.t, checked: st[i] }; })
+  };
+  try {
+    await dbSave(rec);
+    rst(); stab('h');
+  } catch(e) {
+    btn.textContent = 'Registrar fechamento'; btn.disabled = false;
+    ub();
+    alert('Erro ao salvar: ' + e.message + '\n\nVerifique a URL do Firebase no arquivo index.html.');
+  }
+}
+
+function rst() {
+  st = IT.map(function() { return false; });
+  var ni = document.getElementById('ni');
+  if (ni) ni.value = '';
+  cr();
+}
+
+/* ---------- Tab switch ---------- */
+function stab(tab) {
+  var ic = tab === 'c';
+  document.getElementById('vc').style.display = ic ? 'block' : 'none';
+  document.getElementById('vh').style.display = ic ? 'none' : 'block';
+  document.getElementById('tc').className = 'tab' + (ic ? ' on' : '');
+  document.getElementById('th').className = 'tab' + (ic ? '' : ' on');
+  if (!ic) lhist();
+}
+
+/* ---------- Load history ---------- */
+async function lhist() {
+  var hl  = document.getElementById('hl');
+  var he  = document.getElementById('he');
+  var hld = document.getElementById('hld');
+  hl.innerHTML = ''; he.style.display = 'none'; hld.style.display = 'block';
+  try {
+    var recs = await dbGet();
+    hld.style.display = 'none';
+    if (!recs.length) { he.style.display = 'block'; return; }
+    hl.innerHTML = recs.map(function(d, idx) {
+      var isX = xp[idx];
+      var bdg = d.allDone
+        ? '<span class="bdg bdg-ok">✓ Completo</span>'
+        : '<span class="bdg bdg-no">✗ ' + d.checked + '/' + d.total + '</span>';
+      var items = isX
+        ? '<div class="log-items">'
+          + d.items.map(function(it) {
+            return '<div class="li ' + (it.checked ? 'ok' : 'no') + '">'
+              + '<span style="flex-shrink:0">' + (it.checked ? '✓' : '–') + '</span>'
+              + '<span>' + it.title + '</span></div>';
+          }).join('')
+          + '</div>'
+        : '';
+      return '<div class="lc" onclick="txp(' + idx + ')">'
+        + '<div class="l-hd">'
+        + '<div>'
+        + '<div class="l-date">' + d.date + ' &nbsp;<span class="l-time">' + d.time + '</span></div>'
+        + '<div class="l-who">' + d.responsible + '</div>'
+        + '</div>'
+        + '<div style="display:flex;align-items:center;gap:8px">' + bdg
+        + '<span class="chv' + (isX ? ' open' : '') + '">▼</span>'
+        + '</div></div>' + items + '</div>';
+    }).join('');
+  } catch(e) {
+    hld.style.display = 'none';
+    hl.innerHTML = '<div class="err-msg">Erro ao carregar: ' + e.message + '</div>';
+  }
+}
+
+function txp(i) { xp[i] = !xp[i]; lhist(); }
+
+/* ---------- Init ---------- */
+if (!configured) document.getElementById('cfg-banner').style.display = 'block';
+cr();
+</script>
+</body>
+</html>
