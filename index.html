@@ -166,7 +166,7 @@
    CONFIGURAÇÃO — cole a URL do seu Firebase Realtime Database
    Exemplo: https://lifebox-savassi-default-rtdb.firebaseio.com
 ============================================================ */
-var FIREBASE_URL = 'https://lifebox-8e7fa-default-rtdb.firebaseio.com';
+var FIREBASE_URL = 'https://lifebox-8e7fa-default-rtdb.firebaseio.com/';
 /* ============================================================ */
 
 var IT = [
@@ -181,7 +181,7 @@ var IT = [
 
 var st = IT.map(function() { return false; });
 var xp = {};
-var configured = FIREBASE_URL !== 'https://lifebox-8e7fa-default-rtdb.firebaseio.com';
+var configured = FIREBASE_URL !== 'https://lifebox-8e7fa-default-rtdb.firebaseio.com/';
 
 /* ---------- Firebase ---------- */
 async function dbGet() {
