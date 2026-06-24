@@ -136,7 +136,7 @@
       <div class="b-icon" style="color:var(--no-tx)">✗</div>
       <div>
         <div class="b-title">Não liberar a equipe</div>
-        <div class="b-sub">0 de 7 itens conferidos</div>
+        <div class="b-sub">0 de 8 itens conferidos</div>
       </div>
     </div>
     <div id="cl"></div>
@@ -176,7 +176,8 @@ var IT = [
   { t: "Exaustão desligada",                         n: "",                                                                                      tg: [] },
   { t: "Geladeira de apoio e balcões refrigerados", n: "Conferir limpeza, organização, armazenamento e etiquetas",                               tg: [] },
   { t: "Armazenamento dos pães",                    n: "Folhas que armazenam os pães devem estar secas, embalagens fechadas",                    tg: [] },
-  { t: "Desperdício do turno lançado no Vuca",      n: "Compras > Estoque > Desperdícios — filtrar dia/hora, tipo de desperdício: RETAGUARDA",   tg: [] }
+  { t: "Desperdício do turno lançado no Vuca",      n: "Compras > Estoque > Desperdícios — filtrar dia/hora, tipo de desperdício: RETAGUARDA",   tg: [] },
+  { t: "Garagem conferida e portão fechado",        n: "Conferir limpeza da garagem e fechar o portão",                                          tg: [] }
 ];
 
 var st = IT.map(function() { return false; });
@@ -207,10 +208,10 @@ function cr() {
   var bn = document.getElementById('bn');
   if (all) {
     bn.className = 'banner success';
-    bn.innerHTML = '<div class="b-icon" style="color:var(--ok-tx)">✓</div><div><div class="b-title">Equipe pode ser liberada</div><div class="b-sub">Todos os 7 itens conferidos</div></div>';
+    bn.innerHTML = '<div class="b-icon" style="color:var(--ok-tx)">✓</div><div><div class="b-title">Equipe pode ser liberada</div><div class="b-sub">Todos os 8 itens conferidos</div></div>';
   } else {
     bn.className = 'banner danger';
-    bn.innerHTML = '<div class="b-icon" style="color:var(--no-tx)">✗</div><div><div class="b-title">Não liberar a equipe</div><div class="b-sub">' + cnt + ' de 7 itens conferidos</div></div>';
+    bn.innerHTML = '<div class="b-icon" style="color:var(--no-tx)">✗</div><div><div class="b-title">Não liberar a equipe</div><div class="b-sub">' + cnt + ' de 8 itens conferidos</div></div>';
   }
   document.getElementById('cl').innerHTML = IT.map(function(it, i) {
     var d = st[i];
